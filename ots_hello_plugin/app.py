@@ -112,14 +112,11 @@ class HelloPlugin(Plugin):
         # TODO: Uncomment the following line if your plugin does not require a UI
         return '', 200
 
-        # TODO: Otherwise use this line if your plugin requires a UI
-        return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", "index.html", as_attachment=False)
-
     # Endpoint to serve static UI files. Does not need to be changed in most cases
     @staticmethod
     @roles_accepted("administrator")
     @blueprint.route('/assets/<file_name>')
-    @blueprint.route("/ui/<file_name>")
+    # @blueprint.route("/ui/<file_name>")
     def serve(file_name):
         logger.debug(f"Path: {file_name}")
         logger.warning(os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", "assets", file_name))
