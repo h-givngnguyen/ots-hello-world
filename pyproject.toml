@@ -1,7 +1,7 @@
 [project]
 name = "OTS-Hello-Plugin" # TODO: The name must start with OTS-
 description = "Logs a greeting on start-up"
-authors = ["OpenTAKServer <opentakserver@gmail.com>"]
+authors = [{name = "OpenTAKServer", email = "opentakserver@gmail.com"}]
 readme = "README.md"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/brian7704/OpenTAKServer"
