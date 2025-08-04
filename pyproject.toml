@@ -4,13 +4,17 @@ description = "Logs a greeting on start-up"
 authors = [{name = "OpenTAKServer", email = "opentakserver@gmail.com"}]
 readme = "README.md"
 license = "GPL-3.0-or-later"
-repository = "https://github.com/brian7704/OpenTAKServer"
-documentation = "https://docs.opentakserver.io"
+dynamic = ["entry-points", "version"]
 
 [tool.poetry]
 # TODO: Remove the following line if your plugin doesn't have a UI. If it does have a UI, make sure to run "npm run build" in your UI repo before "poetry build"
-#include = [{path = "ots_plugin_template/ui/**/*", format = ["sdist", "wheel"]}]
+include = [{path = "ots_hello_plugin/ui/**/*", format = ["sdist", "wheel"]}]
+requires-poetry = ">=2.0"
 version = "0.0.0"
+
+[project.urls]
+Repository = "https://github.com/h-givngnguyen/ots-hello-world"
+Documentation = "https://docs.opentakserver.io"
 
 [tool.poetry.dependencies]
 opentakserver = ">=1.5.0"
