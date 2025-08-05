@@ -17,7 +17,7 @@ class HelloPlugin(Plugin):
     # TODO: Change the Blueprint name to YourPluginBlueprint
     metadata = importlib.metadata.metadata(pathlib.Path(__file__).resolve().parent.name)
     url_prefix = f"/api/plugins/{metadata['Name'].lower()}"
-    blueprint = Blueprint("HelloPlugin", __name__, url_prefix=url_prefix)
+    blueprint = Blueprint("ots_hello_plugin", __name__, url_prefix="/api/plugins/ots-hello-plugin")
                                        #^
                                        #|
                             # TODO: Change this to your plugin's name
@@ -160,6 +160,13 @@ class HelloPlugin(Plugin):
             logger.error("Failed to update config:" + str(e))
             logger.error(traceback.format_exc())
             return jsonify({"success": False, "error": str(e)}), 400
+
+            @blueprint.route("/config", methods=["GET"])
+
+    @roles_accepted("administrator")
+    def get_config():
+        # No settings → return empty JSON
+        return jsonify({}), 200
 
     # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
     # could cause the whole server to crash. Also make sure to properly protect your routes with @auth_required or @roles_accepted
