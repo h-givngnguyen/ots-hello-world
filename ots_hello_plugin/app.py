@@ -21,6 +21,11 @@ class HelloPlugin(Plugin):
                                        #^
                                        #|
                             # TODO: Change this to your plugin's name
+    def __init__(self):
+        super().__init__()
+        self._websocket_wrapper: WebsocketWrapper | None = None
+        self._ws_thread: threading.Thread | None = None
+        self.load_metadata()
 
     # This is your plugin's entry point. It will be called from OpenTAKServer to start the plugin
     def activate(self, app: Flask):
