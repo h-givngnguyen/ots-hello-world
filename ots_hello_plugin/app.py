@@ -161,7 +161,7 @@ class HelloPlugin(Plugin):
             logger.error(traceback.format_exc())
             return jsonify({"success": False, "error": str(e)}), 400
 
-            @blueprint.route("/config", methods=["GET"])
+            # @blueprint.route("/config", methods=["GET"])
 
     # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
     # could cause the whole server to crash. Also make sure to properly protect your routes with @auth_required or @roles_accepted
