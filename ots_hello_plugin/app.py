@@ -21,11 +21,6 @@ class HelloPlugin(Plugin):
                                        #^
                                        #|
                             # TODO: Change this to your plugin's name
-    def __init__(self):
-        super().__init__()
-        self._websocket_wrapper: WebsocketWrapper | None = None
-        self._ws_thread: threading.Thread | None = None
-        self.load_metadata()
 
     # This is your plugin's entry point. It will be called from OpenTAKServer to start the plugin
     def activate(self, app: Flask):
@@ -167,11 +162,6 @@ class HelloPlugin(Plugin):
             return jsonify({"success": False, "error": str(e)}), 400
 
             @blueprint.route("/config", methods=["GET"])
-
-    @roles_accepted("administrator")
-    def get_config():
-        # No settings → return empty JSON
-        return jsonify({}), 200
 
     # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
     # could cause the whole server to crash. Also make sure to properly protect your routes with @auth_required or @roles_accepted
