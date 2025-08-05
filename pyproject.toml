@@ -8,7 +8,7 @@ dynamic = ["entry-points", "version"]
 
 [tool.poetry]
 # TODO: Remove the following line if your plugin doesn't have a UI. If it does have a UI, make sure to run "npm run build" in your UI repo before "poetry build"
-include = [{path = "ots_hello_plugin/ui/**/*", format = ["sdist", "wheel"]}]
+# include = [{path = "ots_hello_plugin/ui/**/*", format = ["sdist", "wheel"]}]
 requires-poetry = ">=2.0"
 version = "0.0.0"
 
