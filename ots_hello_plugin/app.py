@@ -17,7 +17,7 @@ class HelloPlugin(Plugin):
     # TODO: Change the Blueprint name to YourPluginBlueprint
     metadata = importlib.metadata.metadata(pathlib.Path(__file__).resolve().parent.name)
     url_prefix = f"/api/plugins/{metadata['Name'].lower()}"
-    blueprint = Blueprint("ots_hello_plugin", __name__, url_prefix="/api/plugins/ots-hello-plugin")
+    blueprint = Blueprint("HelloPlugin", __name__, url_prefix=url_prefix)
                                        #^
                                        #|
                             # TODO: Change this to your plugin's name
