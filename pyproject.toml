@@ -6,11 +6,11 @@ readme = "README.md"
 license = "GPL-3.0-or-later"
 dynamic = ["entry-points", "version"]
 
-# [tool.poetry]
+[tool.poetry]
 # TODO: Remove the following line if your plugin doesn't have a UI. If it does have a UI, make sure to run "npm run build" in your UI repo before "poetry build"
-# include = [{ path = "ots_hello_plugin/ui/**/*", format = ["sdist", "wheel"] }]
-# requires-poetry = ">=2.0"
-# version = "0.0.0"
+include = [{ path = "ots_hello_plugin/ui/**/*", format = ["sdist", "wheel"] }]
+requires-poetry = ">=2.0"
+version = "0.0.0"
 
 [tool.setuptools]
 packages = ["ots_hello_plugin"]
