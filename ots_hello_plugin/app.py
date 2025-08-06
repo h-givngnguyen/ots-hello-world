@@ -163,7 +163,7 @@ class HelloPlugin(Plugin):
 
             # @blueprint.route("/config", methods=["GET"])
 
-blueprint = HelloPlugin.blueprint
+#blueprint = HelloPlugin.blueprint
 
     # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
     # could cause the whole server to crash. Also make sure to properly protect your routes with @auth_required or @roles_accepted
