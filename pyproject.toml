@@ -12,12 +12,6 @@ include = [{ path = "ots_hello_plugin/ui/**/*", format = ["sdist", "wheel"] }]
 requires-poetry = ">=2.0"
 version = "0.0.0"
 
-[tool.setuptools]
-packages = ["ots_hello_plugin"]
-
-[tool.setuptools.package-data]
-"ots_hello_plugin" = ["ui/*"]
-
 [project.urls]
 Repository = "https://github.com/h-givngnguyen/ots-hello-world"
 Documentation = "https://docs.opentakserver.io"

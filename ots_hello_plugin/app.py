@@ -110,7 +110,7 @@ class HelloPlugin(Plugin):
     @blueprint.route("/ui")
     def ui():
         plugin_root = pathlib.Path(__file__).parent.resolve()
-        return send_from_directory(plugin_root / "ui" / "assets", "giang.jpg")
+        return send_from_directory(plugin_root / "ui", "index.html")
         # TODO: Uncomment the following line if your plugin does not require a UI
         # return '', 200
 
