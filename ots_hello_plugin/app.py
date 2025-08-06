@@ -96,7 +96,7 @@ class HelloPlugin(Plugin):
     
     @staticmethod
     @roles_accepted("administrator")
-    @HelloPlugin.blueprint.route("/test")
+    @blueprint.route("/test")
     def test_route():
         return "Hello from test", 200
 
