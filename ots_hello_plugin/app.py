@@ -93,6 +93,13 @@ class HelloPlugin(Plugin):
     def ui():
         plugin_root = pathlib.Path(__file__).parent.resolve()
         return send_from_directory(plugin_root / "ui", "index.html", as_attachment=False)
+    
+    @staticmethod
+    @roles_accepted("administrator")
+    @HelloPlugin.blueprint.route("/test")
+    def test_route():
+        return "Hello from test", 200
+
 
     @staticmethod
     @roles_accepted("administrator")
