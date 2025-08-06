@@ -3,6 +3,7 @@ import pathlib
 import traceback
 
 import yaml
+
 from flask import Blueprint, render_template, jsonify, Flask, current_app as app, send_from_directory, request
 from flask_security import roles_accepted
 from opentakserver.plugins.Plugin import Plugin
@@ -11,23 +12,21 @@ from opentakserver.extensions import *
 from .default_config import DefaultConfig
 import importlib.metadata
 
-
 # TODO: Rename this class
 class HelloPlugin(Plugin):
     # TODO: Change the Blueprint name to YourPluginBlueprint
-    metadata = importlib.metadata.metadata(pathlib.Path(__file__).resolve().parent.name)
-    url_prefix = f"/api/plugins/{metadata['Name'].lower()}"
+    url_prefix = f"/api/plugins/{pathlib.Path(__file__).resolve().parent.name}"
     blueprint = Blueprint("HelloPlugin", __name__, url_prefix=url_prefix)
                                        #^
                                        #|
                             # TODO: Change this to your plugin's name
-    
+
     def __init__(self):
         super().__init__()
-        self._websocket_wrapper: WebsocketWrapper | None = None
-        self._ws_thread: threading.Thread | None = None
+        self._websocket_wrapper = None
+        self._ws_thread = None
         self.load_metadata()
-
+    
     # This is your plugin's entry point. It will be called from OpenTAKServer to start the plugin
     def activate(self, app: Flask):
         # Do not change these three lines
@@ -115,26 +114,27 @@ class HelloPlugin(Plugin):
     @roles_accepted("administrator")
     @blueprint.route("/ui")
     def ui():
-        # return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", "index.html", as_attachment=False)
+        plugin_root = pathlib.Path(__file__).parent.resolve()
+        return send_from_directory(plugin_root / "ui", "index.html", as_attachment=False)
         # TODO: Uncomment the following line if your plugin does not require a UI
-        return '', 200
+        # return '', 200
 
     # Endpoint to serve static UI files. Does not need to be changed in most cases
     @staticmethod
     @roles_accepted("administrator")
     @blueprint.route('/assets/<file_name>')
-    # @blueprint.route("/ui/<file_name>")
     def serve(file_name):
-        logger.debug(f"Path: {file_name}")
-        logger.warning(os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", "assets", file_name))
-        if file_name != "" and os.path.exists(
-                os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", "assets", file_name)):
-            logger.info(f"Serving {file_name}")
-            return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui/assets", file_name)
-        elif file_name != "" and os.path.exists(os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", file_name)):
-            return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", file_name)
+        plugin_root = pathlib.Path(__file__).parent.resolve()
+        ui_assets = plugin_root / "ui" / "assets"
+        ui_root = plugin_root / "ui"
+
+        if file_name and (ui_assets / file_name).exists():
+            return send_from_directory(ui_assets, file_name)
+        elif file_name and (ui_root / file_name).exists():
+            return send_from_directory(ui_root, file_name)
         else:
             return '', 404
+
 
     # Gets the plugin config for the web UI, do not change
     @staticmethod
@@ -168,6 +168,9 @@ class HelloPlugin(Plugin):
 
             # @blueprint.route("/config", methods=["GET"])
 
+    def load():
+        return HelloPlugin.blueprint
+    
 blueprint = HelloPlugin.blueprint
 
     # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
