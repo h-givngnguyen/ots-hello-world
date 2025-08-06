@@ -1,39 +1,43 @@
 import os
 import pathlib
-import threading
 import traceback
-import importlib.metadata
-import yaml
 
-from flask import Blueprint, Flask, jsonify, request, send_from_directory, current_app as app
+import yaml
+from flask import Blueprint, render_template, jsonify, Flask, current_app as app, send_from_directory, request
 from flask_security import roles_accepted
 from opentakserver.plugins.Plugin import Plugin
 from opentakserver.extensions import *
 
 from .default_config import DefaultConfig
+import importlib.metadata
 
+
+# TODO: Rename this class
 class HelloPlugin(Plugin):
-    # Use the folder name for URL prefix to avoid hyphen issues
-    url_prefix = f"/api/plugins/{pathlib.Path(__file__).resolve().parent.name}"
+    # TODO: Change the Blueprint name to YourPluginBlueprint
+    metadata = importlib.metadata.metadata(pathlib.Path(__file__).resolve().parent.name)
+    url_prefix = f"/api/plugins/{metadata['Name'].lower()}"
     blueprint = Blueprint("HelloPlugin", __name__, url_prefix=url_prefix)
+                                       #^
+                                       #|
+                            # TODO: Change this to your plugin's name
 
-    def __init__(self):
-        super().__init__()
-        self._websocket_wrapper = None
-        self._ws_thread = None
-        self.load_metadata()
-
+    # This is your plugin's entry point. It will be called from OpenTAKServer to start the plugin
     def activate(self, app: Flask):
+        # Do not change these three lines
         self._app = app
         self._load_config()
         self.load_metadata()
 
         try:
+            # TODO: If your plugin needs to run in the background, do that here.
+            # See OTS-AISStream-Plugin for an example
             logger.info(f"Successfully Loaded {self._name}")
         except BaseException as e:
             logger.error(f"Failed to load {self._name}: {e}")
             logger.error(traceback.format_exc())
 
+    # Do not change this
     def load_metadata(self):
         try:
             distributions = importlib.metadata.packages_distributions()
@@ -43,17 +47,21 @@ class HelloPlugin(Plugin):
                     self.distro = distro
                     info = importlib.metadata.metadata(self.distro)
                     self._metadata = info.json
-                    self._metadata['distro'] = distro
-                    return self._metadata
+                    return info.json
+
         except BaseException as e:
             logger.error(e)
 
+    # Loads default config and user config from ~/ots/config.yml
+    # Do not change
     def _load_config(self):
+        # Gets default config key/value pairs from the plugin's default_config.py
         for key in dir(DefaultConfig):
             if key.isupper():
                 self._config[key] = getattr(DefaultConfig, key)
                 self._app.config.update({key: getattr(DefaultConfig, key)})
 
+        # Get user overrides from config.yml
         with open(os.path.join(self._app.config.get("OTS_DATA_FOLDER"), "config.yml")) as yaml_file:
             yaml_config = yaml.safe_load(yaml_file)
             for key in self._config.keys():
@@ -62,66 +70,82 @@ class HelloPlugin(Plugin):
                     self._config[key] = value
                     self._app.config.update({key: value})
 
-    def stop(self):
-        pass
-
     def get_info(self):
         self.load_metadata()
         self.get_plugin_routes(self.url_prefix)
         return {'name': self.name, 'distro': self.distro, 'routes': self.routes}
 
-    # ------------------ ROUTES ------------------
+    def stop(self):
+        # TODO: If your plugin runs in the background, shut down your plugin gracefully here
+        # See OTS-AISStream-Plugin for an example
+        pass
 
+    # Make route methods static to avoid "no-self-use" errors
     @staticmethod
     @roles_accepted("administrator")
     @blueprint.route("/")
-    def plugin_info():
+    def plugin_info():  # Do not put "self" as a method parameter here
+        # This method will return JSON with info about the plugin derived from pyproject.toml, please do not change it
+        # Make sure that your plugin has a README.md to show in the UI's about page
         try:
+            distribution = None
             distributions = importlib.metadata.packages_distributions()
             for distro in distributions:
                 if str(__name__).startswith(distro):
-                    info = importlib.metadata.metadata(distributions[distro][0])
-                    return jsonify(info.json)
-            return jsonify({'success': False, 'error': 'Plugin not found'}), 404
+                    distribution = distributions[distro][0]
+                    break
+
+            if distribution:
+                info = importlib.metadata.metadata(distribution)
+                return jsonify(info.json)
+            else:
+                return jsonify({'success': False, 'error': 'Plugin not found'}), 404
         except BaseException as e:
             logger.error(e)
-            return jsonify({'success': False, 'error': str(e)}), 500
+            return jsonify({'success': False, 'error': e}), 500
 
+    # OpenTAKServer's web UI will display your plugin's UI in an iframe
     @staticmethod
     @roles_accepted("administrator")
     @blueprint.route("/ui")
     def ui():
-        plugin_root = pathlib.Path(__file__).parent.resolve()
-        return send_from_directory(plugin_root / "ui", "index.html", as_attachment=False)
-    
+        # TODO: Uncomment the following line if your plugin does not require a UI
+        # return '', 200
+
+        # TODO: Otherwise use this line if your plugin requires a UI
+        return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", "index.html", as_attachment=False)
+
+    # Endpoint to serve static UI files. Does not need to be changed in most cases
     @staticmethod
     @roles_accepted("administrator")
-    @blueprint.route("/test")
-    def test_route():
-        return "Hello from test", 200
-
-
-    @staticmethod
-    @roles_accepted("administrator")
-    @blueprint.route("/assets/<path:file_name>")
-    def serve_asset(file_name):
-        plugin_root = pathlib.Path(__file__).parent.resolve()
-        assets_path = plugin_root / "ui" / "assets"
-        if file_name and (assets_path / file_name).exists():
-            return send_from_directory(assets_path, file_name)
+    @blueprint.route('/assets/<file_name>')
+    @blueprint.route("/ui/<file_name>")
+    def serve(file_name):
+        logger.debug(f"Path: {file_name}")
+        logger.warning(os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", "assets", file_name))
+        if file_name != "" and os.path.exists(
+                os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", "assets", file_name)):
+            logger.info(f"Serving {file_name}")
+            return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui/assets", file_name)
+        elif file_name != "" and os.path.exists(os.path.join(pathlib.Path(__file__).parent.resolve(), "ui", file_name)):
+            return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", file_name)
         else:
             return '', 404
 
+    # Gets the plugin config for the web UI, do not change
     @staticmethod
     @roles_accepted("administrator")
     @blueprint.route("/config")
     def config():
-        config_data = {}
+        config = {}
+
         for key in dir(DefaultConfig):
             if key.isupper():
-                config_data[key] = app.config.get(key)
-        return jsonify(config_data)
+                config[key] = app.config.get(key)
 
+        return jsonify(config)
+
+    # Updates the plugin config
     @staticmethod
     @roles_accepted("administrator")
     @blueprint.route("/config", methods=["POST"])
@@ -138,6 +162,5 @@ class HelloPlugin(Plugin):
             logger.error(traceback.format_exc())
             return jsonify({"success": False, "error": str(e)}), 400
 
-# 👇 Required for OTS to load the plugin!
-def load():
-    return HelloPlugin.blueprint
+    # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
+    # could cause the whole server to crash. Also make sure to properly protect your routes with @auth_required or @roles_accepted
