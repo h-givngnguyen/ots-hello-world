@@ -109,8 +109,7 @@ class HelloPlugin(Plugin):
     @roles_accepted("administrator")
     @blueprint.route("/ui")
     def ui():
-        plugin_root = pathlib.Path(__file__).parent.resolve()
-        return send_from_directory(plugin_root / "ui", "index.html")
+        return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", "index.html", as_attachment=False)
         # TODO: Uncomment the following line if your plugin does not require a UI
         # return '', 200
 
@@ -163,7 +162,7 @@ class HelloPlugin(Plugin):
 
             # @blueprint.route("/config", methods=["GET"])
 
-#blueprint = HelloPlugin.blueprint
+blueprint = HelloPlugin.blueprint
 
     # TODO: Add more routes here. Make sure to use try/except blocks around all of your code. Otherwise, an exception in a plugin
     # could cause the whole server to crash. Also make sure to properly protect your routes with @auth_required or @roles_accepted
