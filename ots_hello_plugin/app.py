@@ -21,6 +21,12 @@ class HelloPlugin(Plugin):
                                        #^
                                        #|
                             # TODO: Change this to your plugin's name
+    
+    def __init__(self):
+        super().__init__()
+        self._websocket_wrapper: WebsocketWrapper | None = None
+        self._ws_thread: threading.Thread | None = None
+        self.load_metadata()
 
     # This is your plugin's entry point. It will be called from OpenTAKServer to start the plugin
     def activate(self, app: Flask):
@@ -109,7 +115,7 @@ class HelloPlugin(Plugin):
     @roles_accepted("administrator")
     @blueprint.route("/ui")
     def ui():
-        return send_from_directory(f"/{pathlib.Path(__file__).parent.resolve().name}/ui", "index.html", as_attachment=False)
+        return send_from_directory(f"../{pathlib.Path(__file__).parent.resolve().name}/ui", "index.html", as_attachment=False)
         # TODO: Uncomment the following line if your plugin does not require a UI
         # return '', 200
 
